@@ -1,4 +1,3 @@
-import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
@@ -11,9 +10,9 @@ const plugins = [
   nodeResolve({
     jsnext: true,
     main: true,
+    extensions: ['.ts', '.js'],
   }),
   commonjs(),
-  typescript(),
   json(),
   babel({
     exclude: 'node_modules/**',
@@ -21,6 +20,7 @@ const plugins = [
     compact: true,
     extensions: ['.js', '.ts'],
     presets: [
+      ['@babel/preset-typescript'],
       [
         '@babel/env',
         {
@@ -30,17 +30,11 @@ const plugins = [
       ],
     ],
     plugins: [
-      [
-        '@babel/plugin-proposal-decorators',
-        {
-          legacy: true,
-        },
-      ],
-      ['@babel/plugin-proposal-class-properties'],
+      ['@babel/plugin-proposal-decorators', { legacy: true }],
+      ['@babel/plugin-proposal-class-properties', { loose: true }],
       ['@babel/plugin-transform-template-literals'],
     ],
   }),
-  // Only minify in non-watch (build) mode for better dev experience
   !isWatch && terser(),
 ].filter(Boolean);
 
@@ -61,8 +55,6 @@ export default {
     if (warning.code === 'THIS_IS_UNDEFINED') {
       return;
     }
-
-    // console.warn everything else
     handler(warning);
   },
 };
