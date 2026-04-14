@@ -38,6 +38,8 @@ export enum InverterModel {
 	Sungrow = 'sungrow',
 	Sunsynk = 'sunsynk',
 	Victron = 'victron',
+	Magnum = 'magnum',
+	MidniteSolar = 'midnite',
 }
 
 export enum CardStyle {
@@ -68,6 +70,36 @@ export interface sunsynkPowerFlowCardConfig extends LovelaceCardConfig {
 	dynamic_line_width?: boolean;
 	max_line_width: number;
 	min_line_width: number;
+	installation_type?: 'standard' | 'offgrid_separate';
+	charge_controller?: {
+		count?: number;
+		name?: string;
+		model?: string;
+		colour?: string;
+		show_daily?: boolean;
+	};
+	inverter_charger?: {
+		name?: string;
+		show_dc_details?: boolean;
+		show_ags?: boolean;
+		show_fault?: boolean;
+		colour?: string;
+	};
+	external_source?: {
+		enabled?: boolean;
+		name?: string;
+		show_daily?: boolean;
+		colour?: string;
+	};
+	generator?: {
+		enabled?: boolean;
+		name?: string;
+		rated_power_kw?: number;
+		maintenance_interval_hours?: number;
+		show_runtime?: boolean;
+		show_maintenance?: boolean;
+		colour?: string;
+	};
 	inverter: {
 		modern: boolean;
 		colour: string;
@@ -371,6 +403,31 @@ export interface CardConfigEntities {
 	prog5_charge: string;
 	prog6_charge: string;
 	max_sell_power: string;
+	// Offgrid separate — contrôleurs de charge
+	cc1_charge_stage?: string;
+	cc1_output_voltage?: string;
+	cc1_output_current?: string;
+	cc2_charge_stage?: string;
+	cc2_output_voltage?: string;
+	cc2_output_current?: string;
+	cc3_charge_stage?: string;
+	cc3_output_voltage?: string;
+	cc3_output_current?: string;
+	cc4_charge_stage?: string;
+	cc4_output_voltage?: string;
+	cc4_output_current?: string;
+	// Offgrid separate — onduleur/chargeur
+	inverter_dc_voltage?: string;
+	inverter_dc_current?: string;
+	inverter_state?: string;
+	inverter_fault?: string;
+	ags_state?: string;
+	// Offgrid separate — génératrice
+	generator_status?: string;
+	generator_voltage?: string;
+	generator_current?: string;
+	generator_power?: string;
+	generator_runtime_hours?: string;
 }
 
 export interface InverterSettings {
@@ -620,3 +677,5 @@ export interface DataDto {
 	maximumSOC;
 	batteryCount;
 }
+
+export type InstallationType = 'standard' | 'offgrid_separate';

@@ -30,6 +30,8 @@ import { Solinteg } from './brands/solinteg';
 import { DeyeNew } from './brands/deye-new';
 import { Chisage } from './brands/chisage';
 import { SRNEHES } from './brands/srnehes';
+import { Magnum } from './brands/magnum';
+import { Midnite } from './brands/midnite';
 
 export class InverterFactory {
 	static instance: InverterSettingsDto;
@@ -101,6 +103,10 @@ export class InverterFactory {
 				return new MakeSkyBlue();
 			case InverterModel.Solinteg:
 				return new Solinteg();
+			case InverterModel.Magnum:
+				return new Magnum();
+			case InverterModel.MidniteSolar:
+				return new Midnite();
 			case InverterModel.Sunsynk:
 			default:
 				return new Sunsynk();
