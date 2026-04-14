@@ -38,6 +38,7 @@ import merge from 'lodash.merge';
 import { Utils } from './helpers/utils';
 import { fullCard } from './cards/full-card';
 import { compactCard } from './cards/compact-card';
+import { offgridCard } from './cards/offgrid-card';
 import { globalData } from './helpers/globals';
 import { InverterFactory } from './inverters/inverter-factory';
 import { BatteryIconManager } from './helpers/battery-icon-manager';
@@ -2765,6 +2766,9 @@ export class SunsynkPowerFlowCard extends LitElement {
 			batteryCount,
 		};
 
+		if (config.installation_type === 'offgrid_separate') {
+			return offgridCard(config, this.hass, 0, false, () => {});
+		}
 		let template: TemplateResult | null = null;
 		let variantKey: 'full' | 'compact' | undefined;
 		if (this.isFullCard) {
@@ -2774,11 +2778,9 @@ export class SunsynkPowerFlowCard extends LitElement {
 			variantKey = 'compact';
 			template = compactCard(config, inverterImg, data);
 		}
-
 		if (template && variantKey) {
 			return cache(keyed(variantKey, template));
 		}
-
 		return template ?? null;
 	}
 
@@ -3117,9 +3119,9 @@ export class SunsynkPowerFlowCard extends LitElement {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).customCards.push({
-	type: 'sunsynk-power-flow-card',
-	name: 'Sunsynk Power Flow Card',
+	type: 'offgrid-power-flow-card',
+	name: 'offgrid Power Flow Card',
 	preview: true,
-	description: localize('common.description'),
+	description: 'Off-grid card with separate solar charge controller and inverter/charger',
 	configurable: true,
 });
