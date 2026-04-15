@@ -419,6 +419,8 @@ export interface CardConfigEntities {
 	// Offgrid separate — onduleur/chargeur
 	inverter_dc_voltage?: string;
 	inverter_dc_current?: string;
+	load_dc_voltage?: string;
+	load_dc_current?: string;
 	inverter_state?: string;
 	inverter_fault?: string;
 	ags_state?: string;
