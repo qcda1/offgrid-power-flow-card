@@ -31,6 +31,8 @@ Refer to [https://slipx06.github.io/sunsynk-power-flow-card/index.html](https://
 
 ## Screenshots
 
+![image](https://github.com/qcda1/offgrid-power-flow-card/blob/main/docs/OffGrid_power_flow_chart1.png)
+
 ## Installation
 
 The card can be installed via HACS (recommended) or manually.
