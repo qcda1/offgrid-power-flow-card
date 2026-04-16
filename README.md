@@ -2,7 +2,9 @@
 
 # OffGrid Power Flow Card
 
-An animated Home Assistant card to emulate the power flow of a Best Of Breed or non AIO inverter setup. You can use this to display data from any inverter/charger. This card is based from the biutiful Sunsynk power flow card
+An animated Home Assistant card to emulate the power flow of a Best Of Breed or non AIO inverter setup. You can use this to display data from any inverter/charger.
+
+This card is based on the beautiful Sunsynk power flow card
 
 ## Documentation
 
