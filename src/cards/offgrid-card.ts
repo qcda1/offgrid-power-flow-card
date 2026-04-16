@@ -246,14 +246,14 @@ function loadTextZone(hass: any, entities: any, config: any, flow: any) {
 
 		<text x=${LOAD_X} y=${LOAD_Y + 17} font-size="9" font-weight="600"
 			fill="var(--secondary-text-color)">DC (SmartShunt)</text>
-		<text x=${LOAD_X} y=${LOAD_Y + 30} font-size="9" fill="var(--primary-text-color)">
+		<text x=${LOAD_X} y=${LOAD_Y + 30} font-size="13" font-weight="600" fill="var(--primary-text-color)">
 			${fmt(dcPow)}
 		</text>
-		<text x=${LOAD_X} y=${LOAD_Y + 43} font-size="9" fill="var(--secondary-text-color)">
+		<text x=${LOAD_X} y=${LOAD_Y + 43} font-size="13" fill="var(--secondary-text-color)">
 			${fmtV(dcV)} · ${fmtA(dcA)}
 		</text>
 		<text x=${LOAD_X} y=${LOAD_Y + 56} font-size="9" fill="var(--secondary-text-color)">
-			${fmtE(dly)}/j
+			${fmtE(dly)}
 		</text>
 
 		<text x=${LOAD_X} y=${LOAD_Y + 75} font-size="9" font-weight="600"
