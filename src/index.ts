@@ -3122,6 +3122,7 @@ export class SunsynkPowerFlowCard extends LitElement {
 	type: 'offgrid-power-flow-card',
 	name: 'offgrid Power Flow Card',
 	preview: true,
-	description: 'Off-grid card with separate solar charge controller and inverter/charger',
-	configurable: true,
+	description:
+		'Off-grid card with separate solar charge controller and inverter/charger',
+	configurable: false,
 });

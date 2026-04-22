@@ -181,10 +181,7 @@ function ccBlock(
 	const stage = txt(hass, entities[`cc${n}_charge_stage`]);
 	const volt = num(hass, entities[`cc${n}_output_voltage`]);
 	const curr = num(hass, entities[`cc${n}_output_current`]);
-	const name =
-		total > 1
-			? `${config.charge_controller?.name ?? 'CC'} ${n}`
-			: (config.charge_controller?.name ?? 'Ctrl. charge');
+	const name = config.solar?.[`pv${n}_name`] ?? `CC ${n}`;
 
 	const totalW = total * CC_W + (total - 1) * CC_GAP;
 	const startX = BUS_MID - totalW / 2;
@@ -463,9 +460,9 @@ export const offgridCard = (
 	onMaintenanceReset: () => void,
 ) => {
 	const e = config.entities;
-	const ccCount = config.charge_controller?.count ?? 1;
+	const ccCount = config.solar?.mppts ?? 1;
 	const invertBat = config.battery?.invert_power ?? false;
-	const ccCol = config.charge_controller?.colour ?? '#BA7517';
+	const ccCol = config.solar?.colour ?? '#ffa500';
 
 	// Somme puissances PV
 	let totalPV = 0;

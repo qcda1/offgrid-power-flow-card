@@ -90,4 +90,11 @@ export default [
       ],
     },
   },
+  // src/index.ts: ignore useless-assignment errors from original Sunsynk code
+  {
+    files: ['src/index.ts'],
+    rules: {
+      'no-useless-assignment': 'off',
+    },
+  },
 ];
