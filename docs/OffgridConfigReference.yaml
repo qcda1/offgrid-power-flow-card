@@ -1,0 +1,189 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# offgrid-power-flow-card — Référence complète de configuration YAML
+# ═══════════════════════════════════════════════════════════════════════════════
+# [S] = champ Sunsynk standard (documenté sur https://github.com/slipx06/sunsynk-power-flow-card/wiki)
+# [O] = champ spécifique offgrid (ajouté par notre fork)
+
+type: custom:offgrid-power-flow-card
+installation_type: offgrid_separate # [O] Requis pour activer le mode hors réseau
+
+# ─── Général ──────────────────────────────────────────────────────────────────
+title: 'Mon système hors réseau' # [S] Titre affiché en haut de la carte
+title_colour: '#ffffff' # [S] Couleur du titre
+title_size: '16px' # [S] Taille du titre (CSS)
+cardstyle: lite # [S] Style: lite | full
+card_width: '100%' # [S] Largeur de la carte (CSS ou px)
+card_height: auto # [S] Hauteur de la carte (CSS ou px)
+wide: false # [S]
+large_font: false # [S]
+show_solar: true # [S] Afficher la section solaire
+show_battery: true # [S] Afficher la batterie
+show_grid: true # [S] Afficher le bloc Grid (Hydro-Québec)
+center_no_grid: false # [S]
+decimal_places: 2 # [S] Décimales pour les valeurs
+decimal_places_energy: 1 # [S] Décimales pour les énergies
+dynamic_line_width: true # [S] Largeur de ligne dynamique selon puissance
+max_line_width: 4 # [S] Largeur max des lignes animées
+min_line_width: 2 # [S] Largeur min des lignes animées
+
+# ─── Onduleur/Chargeur ────────────────────────────────────────────────────────
+# Utilise la section inverter: de Sunsynk
+inverter:
+  model: 'Magnum MS4448PAE' # [S] Nom affiché dans la boîte onduleur et zone Load
+  colour: '#185FA5' # [S] Couleur de la boîte onduleur
+  modern: true # [S]
+  autarky: power # [S] power | energy
+  auto_scale: true # [S]
+  three_phase: false # [S]
+  navigate: '' # [S]
+  label_autarky: '' # [S]
+  label_ratio: '' # [S]
+  show_dc_details: true # [O] Afficher tension/courant DC dans la boîte onduleur
+  show_ags: true # [O] Afficher l'état AGS
+  show_fault: true # [O] Afficher le code de fault
+
+# ─── Solaire / Contrôleurs de charge ──────────────────────────────────────────
+# Utilise la section solar: de Sunsynk — remplace charge_controller:
+solar:
+  colour: '#ffa500' # [S] Couleur des boîtes CC et Solar
+  show_daily: false # [S] Afficher énergie journalière
+  mppts: 2 # [S] Nombre de contrôleurs (1-6)
+  animation_speed: 9 # [S]
+  max_power: 2600 # [S] Puissance crête totale (pour le %)
+  pv1_name: 'CLASSIC1' # [S] Nom du CC 1 (affiché dans sa boîte)
+  pv2_name: 'CLASSIC2' # [S] Nom du CC 2
+  pv3_name: '' # [S] Nom du CC 3 (si mppts >= 3)
+  pv4_name: '' # [S] Nom du CC 4
+  pv5_name: '' # [S] Nom du CC 5
+  pv6_name: '' # [S] Nom du CC 6
+  pv1_max_power: 1200 # [S] Puissance max panneau 1
+  pv2_max_power: 1400 # [S] Puissance max panneau 2
+  auto_scale: true # [S]
+  display_mode: 1 # [S]
+  dynamic_colour: true # [S]
+  efficiency: 3 # [S]
+  off_threshold: 10 # [S] Seuil en-dessous duquel la ligne est inactive
+  navigate: '' # [S]
+  invert_flow: false # [S]
+
+# ─── Batterie ─────────────────────────────────────────────────────────────────
+battery:
+  colour: '#00b4d8' # [S] Couleur de la boîte batterie
+  show_daily: true # [S] Afficher charge/décharge journalière
+  count: 1 # [S] Nombre de batteries (1-2)
+  invert_power: false # [S] Inverser le signe de la puissance
+  dynamic_colour: true # [S]
+  show_remaining_energy: true # [S]
+  max_power: 67 # [S] Puissance max en A (pour largeur de ligne)
+  energy: 25000 # [S] Capacité totale en Wh
+  shutdown_soc: 10 # [S] SOC minimum normal
+  shutdown_soc_offgrid: 10 # [S] SOC minimum hors réseau
+  soc_end_of_charge: 100 # [S] SOC fin de charge
+  soc_decimal_places: 0 # [S]
+  path_threshold: 0 # [S]
+  show_absolute: true # [S]
+
+# Deuxième batterie (optionnel, si count: 2)
+battery2:
+  colour: '#ffc0cb' # [S]
+  energy: 0 # [S]
+  shutdown_soc: 20 # [S]
+  soc_end_of_charge: 100 # [S]
+  invert_power: false # [S]
+  hide_soc: false # [S]
+  show_remaining_energy: true # [S]
+  auto_scale: true # [S]
+  dynamic_colour: true # [S]
+  animate: true # [S]
+
+# ─── Charge (Load) ────────────────────────────────────────────────────────────
+load:
+  colour: '#5fb6ad' # [S] Couleur de la zone texte Load
+  off_colour: '#9e9e9e' # [S]
+  dynamic_colour: true # [S]
+  show_daily: false # [S]
+  off_threshold: 0 # [S]
+  auto_scale: true # [S]
+  invert_load: false # [S]
+  additional_loads: 0 # [S] Charges additionnelles (0-6)
+  load1_name: '' # [S]
+  load2_name: '' # [S]
+  load1_icon: default # [S]
+  load2_icon: default # [S]
+
+# ─── Grid (Hydro-Québec ou autre réseau) ──────────────────────────────────────
+grid:
+  colour: '#5490c2' # [S] Couleur de la boîte Grid
+  grid_name: 'Hydro-Québec' # [S] Nom affiché dans la boîte
+  invert_grid: false # [S] Inverser signe puissance grid
+  off_threshold: 0 # [S] Seuil inactivité
+  max_power: 8000 # [S] Puissance max (pour largeur ligne)
+  show_daily_buy: false # [S]
+  show_daily_sell: false # [S]
+  show_nonessential: true # [S]
+  auto_scale: true # [S]
+  show_absolute: false # [S]
+  animation_speed: 8 # [S]
+  energy_cost_decimals: 2 # [S]
+  navigate: '' # [S]
+  invert_flow: false # [S]
+
+# ─── Génératrice ──────────────────────────────────────────────────────────────
+# Section spécifique offgrid
+generator:
+  enabled: true # [O] Requis pour afficher le bloc génératrice
+  name: 'Kohler 14RCA' # [O] Nom affiché dans la boîte
+  colour: '#993C1D' # [O] Couleur de la boîte
+  rated_power_kw: 14 # [O] Puissance nominale affichée (ex: "3.0 kW / 14 kW")
+  maintenance_interval_hours: 100 # [O] Intervalle entretien en heures
+  show_runtime: true # [O] Afficher heures d'opération
+  show_maintenance: true # [O] Afficher compteur entretien + bouton reset
+
+# ─── Entités ──────────────────────────────────────────────────────────────────
+entities:
+  # Contrôleurs de charge (CC1 à CC6 selon solar.mppts)
+  pv1_power: sensor.classic1_power # [S] Puissance PV du CC1
+  cc1_charge_stage: sensor.classic1_charge_state_text # [O] État de charge CC1 (Bulk, Float...)
+  cc1_output_voltage: sensor.classic1_battery_voltage # [O] Tension sortie CC1
+  cc1_output_current: sensor.classic1_battery_current # [O] Courant sortie CC1
+  pv2_power: sensor.classic2_power # [S] Puissance PV du CC2
+  cc2_charge_stage: sensor.classic2_charge_state_text # [O]
+  cc2_output_voltage: sensor.classic2_battery_voltage # [O]
+  cc2_output_current: sensor.classic2_battery_current # [O]
+  # pv3_power, cc3_*, pv4_power, cc4_*, etc. si mppts > 2
+
+  # Onduleur/Chargeur
+  inverter_power_175: sensor.magnum_powerdc # [S] Puissance DC onduleur
+  inverter_voltage_154: sensor.magnum_ac_output_voltage # [S] Tension AC sortie
+  inverter_current_164: sensor.magnum_ac_output_current # [S] Courant AC sortie
+  inverter_dc_voltage: sensor.invvdc # [O] Tension DC bus (SmartShunt ou Magnum)
+  inverter_dc_current: sensor.invadc # [O] Courant DC bus
+  inverter_state: sensor.invfault # [O] État général onduleur
+  inverter_fault: sensor.invfault # [O] Code de fault
+  load_frequency_192: sensor.magnum_ac_frequency # [S] Fréquence AC sortie
+  ags_state: sensor.agsstatus # [O] État AGS (Auto Gen Start)
+
+  # Batterie
+  battery_voltage_183: sensor.classic1_battery_voltage # [S] Tension batterie
+  battery_soc_184: sensor.classic1_soc # [S] SOC batterie (%)
+  battery_power_190: sensor.battery_power # [S] Puissance batterie (W)
+  battery_current_191: sensor.classic1_whizbangbatcurrent # [S] Courant batterie
+  day_battery_charge_70: sensor.day_battery_charge # [S] Énergie chargée aujourd'hui (kWh)
+  day_battery_discharge_71: sensor.day_battery_discharge # [S] Énergie déchargée aujourd'hui
+
+  # Charge DC (SmartShunt Victron)
+  load_dc_voltage: sensor.smartshunt_voltage # [O] Tension mesurée par SmartShunt
+  load_dc_current: sensor.smartshunt_current # [O] Courant mesuré par SmartShunt
+  essential_power: sensor.load_power # [S] Puissance de charge totale (W)
+  day_load_energy_84: sensor.day_load_energy # [S] Énergie consommée aujourd'hui
+
+  # Grid (Hydro-Québec)
+  grid_power_169: sensor.grid_power # [S] Puissance grid (W, positif=import)
+  grid_connected_status_194: binary_sensor.grid_connected # [S] Connecté: on/true, sinon déconnecté
+
+  # Génératrice
+  generator_power: sensor.generator_power # [O] Puissance génératrice (W)
+  generator_status: sensor.generator_status # [O] État texte (RUN, STOP...)
+  generator_runtime_hours: sensor.generator_runtime # [O] Heures totales d'opération
+  generator_voltage: sensor.generator_voltage # [O] Tension (optionnel, calcule puissance si power absent)
+  generator_current: sensor.generator_current # [O] Courant (optionnel)

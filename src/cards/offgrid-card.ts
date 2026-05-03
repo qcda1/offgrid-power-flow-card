@@ -50,8 +50,7 @@ function flowLine(
 		style="--og-ms:${ms}ms" class=${cls}/>`;
 }
 
-// Chemin en L avec coin arrondi : descend de (x1,y1), tourne à mi-chemin, arrive en (x2,y2)
-// Utilisé pour CC → Solar
+// Chemin en L avec coin arrondi
 function flowElbow(
 	x1: number,
 	y1: number,
@@ -61,10 +60,9 @@ function flowElbow(
 	colour: string,
 ) {
 	const abs = Math.abs(power);
-	const r = 12; // rayon du coin arrondi
+	const r = 12;
 	const midY = y1 + (y2 - y1) * 0.55;
 	const goRight = x2 > x1;
-	// Descend verticalement, puis tourne horizontalement vers Solar
 	const d = goRight
 		? `M${x1},${y1} L${x1},${midY - r} Q${x1},${midY} ${x1 + r},${midY} L${x2 - r},${midY} Q${x2},${midY} ${x2},${midY + r} L${x2},${y2}`
 		: `M${x1},${y1} L${x1},${midY - r} Q${x1},${midY} ${x1 - r},${midY} L${x2 + r},${midY} Q${x2},${midY} ${x2},${midY + r} L${x2},${y2}`;
@@ -104,12 +102,11 @@ const SOL_Y = 135;
 const SOL_CX = BUS_MID;
 const SOL_BOT = SOL_Y + SOL_H;
 
-// 4 blocs sous le bus bar, répartis uniformément
-// Onduleur, Ext/Hydro, Batterie, Génératrice
+// 4 blocs sous le bus bar
 const BOT_Y = 265;
 const SLOT_W = BUS_W / 4;
 const BUS_INV_X = BUS_X + SLOT_W * 0 + SLOT_W / 2;
-const BUS_EXT_X = BUS_X + SLOT_W * 1 + SLOT_W / 2;
+const BUS_GRID_X = BUS_X + SLOT_W * 1 + SLOT_W / 2;
 const BUS_BAT_X = BUS_X + SLOT_W * 2 + SLOT_W / 2;
 const BUS_GEN_X = BUS_X + SLOT_W * 3 + SLOT_W / 2;
 
@@ -120,12 +117,12 @@ const INV_X = BUS_INV_X - INV_W / 2;
 const INV_Y = BOT_Y;
 const INV_CX = BUS_INV_X;
 
-// Ext/Hydro
-const EXT_W = 100;
-const EXT_H = 60;
-const EXT_X = BUS_EXT_X - EXT_W / 2;
-const EXT_Y = BOT_Y;
-const EXT_CX = BUS_EXT_X;
+// Grid (Hydro-Québec)
+const GRID_W = 100;
+const GRID_H = 65;
+const GRID_X = BUS_GRID_X - GRID_W / 2;
+const GRID_Y = BOT_Y;
+const GRID_CX = BUS_GRID_X;
 
 // Batterie
 const BAT_W = 105;
@@ -173,7 +170,7 @@ function ccBlock(
 	config: any,
 ) {
 	const n = index + 1;
-	const col = config.charge_controller?.colour ?? '#BA7517';
+	const col = config.solar?.colour ?? '#ffa500';
 	const pvPow = num(
 		hass,
 		entities[`pv${n}_power`] ?? entities[`pv${n}_power_186`],
@@ -237,16 +234,19 @@ function loadTextZone(hass: any, entities: any, config: any, flow: any) {
 	const dcA = num(hass, entities.load_dc_current);
 	const dly = num(hass, entities.day_load_energy_84);
 	const dcPow = dcV > 0 && dcA > 0 ? dcV * dcA : flow.essPow;
+	// Nom de l'onduleur depuis config.inverter.model (Sunsynk standard)
+	const invName = config.inverter?.model ?? 'Onduleur';
 
 	return svg`
-		<<text x=${LOAD_X} y=${LOAD_Y} font-size="10" font-weight="600" fill=${col}>Load</text>
+		<text x=${LOAD_X} y=${LOAD_Y} font-size="10" font-weight="600" fill=${col}>Load</text>
 
 		<text x=${LOAD_X} y=${LOAD_Y + 17} font-size="9" font-weight="600"
 			fill="var(--secondary-text-color)">DC (SmartShunt)</text>
-		<text x=${LOAD_X} y=${LOAD_Y + 30} font-size="13" font-weight="600" fill="var(--primary-text-color)">
+		<text x=${LOAD_X} y=${LOAD_Y + 30} font-size="13" font-weight="600"
+			fill="var(--primary-text-color)">
 			${fmt(dcPow)}
 		</text>
-		<text x=${LOAD_X} y=${LOAD_Y + 43} font-size="13" fill="var(--secondary-text-color)">
+		<text x=${LOAD_X} y=${LOAD_Y + 43} font-size="9" fill="var(--secondary-text-color)">
 			${fmtV(dcV)} · ${fmtA(dcA)}
 		</text>
 		<text x=${LOAD_X} y=${LOAD_Y + 56} font-size="9" fill="var(--secondary-text-color)">
@@ -254,7 +254,7 @@ function loadTextZone(hass: any, entities: any, config: any, flow: any) {
 		</text>
 
 		<text x=${LOAD_X} y=${LOAD_Y + 75} font-size="9" font-weight="600"
-			fill="var(--secondary-text-color)">AC (${config.inverter_charger?.name ?? 'Onduleur'})</text>
+			fill="var(--secondary-text-color)">AC (${invName})</text>
 		<text x=${LOAD_X} y=${LOAD_Y + 88} font-size="9" fill="var(--primary-text-color)">
 			${fmt(flow.invPow)}
 		</text>
@@ -269,7 +269,12 @@ function loadTextZone(hass: any, entities: any, config: any, flow: any) {
 }
 
 function invBlock(hass: any, entities: any, config: any, flow: any) {
-	const col = config.inverter_charger?.colour ?? '#185FA5';
+	// Utilise config.inverter (Sunsynk standard) au lieu de config.inverter_charger
+	const col = config.inverter?.colour ?? '#185FA5';
+	const name = config.inverter?.model ?? 'Onduleur';
+	const showDC = config.inverter?.show_dc_details !== false;
+	const showAGS = config.inverter?.show_ags !== false;
+	const showFault = config.inverter?.show_fault !== false;
 	const state = txt(hass, entities.inverter_state);
 	const fault = txt(hass, entities.inverter_fault);
 	const ags = txt(hass, entities.ags_state);
@@ -279,19 +284,19 @@ function invBlock(hass: any, entities: any, config: any, flow: any) {
 			<rect x=${INV_X} y=${INV_Y} width=${INV_W} height=${INV_H}
 				rx="6" fill=${col} fill-opacity="0.12" stroke=${col} stroke-width="1"/>
 			<text x=${INV_CX} y=${INV_Y + 14} text-anchor="middle" font-size="10" font-weight="600" fill=${col}>
-				${config.inverter_charger?.name ?? 'Onduleur'}
+				${name}
 			</text>
 			<text x=${INV_CX} y=${INV_Y + 28} text-anchor="middle" font-size="10"
 				fill="var(--secondary-text-color)">${state || '—'}</text>
 			${
-				config.inverter_charger?.show_fault !== false && fault
+				showFault && fault
 					? svg`
 				<text x=${INV_CX} y=${INV_Y + 42} text-anchor="middle" font-size="9"
 					fill=${faultOK ? '#3B6D11' : '#D85A30'}>Fault: ${fault}</text>`
 					: svg``
 			}
 			${
-				config.inverter_charger?.show_dc_details !== false
+				showDC
 					? svg`
 				<text x=${INV_CX} y=${INV_Y + 56} text-anchor="middle" font-size="9"
 					fill="var(--secondary-text-color)">
@@ -302,7 +307,7 @@ function invBlock(hass: any, entities: any, config: any, flow: any) {
 			<text x=${INV_CX} y=${INV_Y + 72} text-anchor="middle" font-size="13" font-weight="600"
 				fill="var(--primary-text-color)">${fmt(flow.invPow)}</text>
 			${
-				config.inverter_charger?.show_ags !== false && ags
+				showAGS && ags
 					? svg`
 				<text x=${INV_CX} y=${INV_Y + 86} text-anchor="middle" font-size="9"
 					fill="var(--secondary-text-color)">AGS: ${ags}</text>
@@ -323,25 +328,47 @@ function invBlock(hass: any, entities: any, config: any, flow: any) {
 	`;
 }
 
-function extBlock(hass: any, entities: any, config: any, flow: any) {
-	if (!config.external_source?.enabled) return svg``;
-	const col = config.external_source?.colour ?? '#5F5E5A';
+function gridBlock(hass: any, entities: any, config: any, flow: any) {
+	if (config.show_grid === false) return svg``;
+	const col = config.grid?.colour ?? '#5490c2';
+	const invertGrid = config.grid?.invert_grid ?? false;
+	const rawPow = flow.gridPow;
+	const busPow = invertGrid ? -rawPow : rawPow;
 	const conn = flow.gridConn;
+	const name = config.grid?.grid_name || 'Grid';
+	const offThreshold = config.grid?.off_threshold ?? 0;
+	const isActive = Math.abs(rawPow) > offThreshold;
 	return svg`
 		<g>
-			<rect x=${EXT_X} y=${EXT_Y} width=${EXT_W} height=${EXT_H}
+			<rect x=${GRID_X} y=${GRID_Y} width=${GRID_W} height=${GRID_H}
 				rx="6" fill=${col} fill-opacity="0.12" stroke=${col} stroke-width="1"
 				stroke-dasharray=${conn ? 'none' : '4 3'}/>
-			<text x=${EXT_CX} y=${EXT_Y + 14} text-anchor="middle" font-size="10" font-weight="600" fill=${col}>
-				${config.external_source?.name ?? 'Source ext.'}
+			<text x=${GRID_CX} y=${GRID_Y + 14} text-anchor="middle" font-size="10" font-weight="600" fill=${col}>
+				${name}
 			</text>
-			<text x=${EXT_CX} y=${EXT_Y + 28} text-anchor="middle" font-size="9"
+			<text x=${GRID_CX} y=${GRID_Y + 28} text-anchor="middle" font-size="9"
 				fill="var(--secondary-text-color)">${conn ? 'Connecté' : 'Déconnecté'}</text>
-			<text x=${EXT_CX} y=${EXT_Y + 42} text-anchor="middle" font-size="9"
-				fill="var(--secondary-text-color)">
-				${flow.gridPow !== 0 ? fmt(Math.abs(flow.gridPow)) : '—'}
+			<text x=${GRID_CX} y=${GRID_Y + 44} text-anchor="middle" font-size="11" font-weight="600"
+				fill="var(--primary-text-color)">
+				${isActive ? fmt(Math.abs(rawPow)) : '—'}
 			</text>
-			${flowLine(BUS_EXT_X, BUS_Y + BUS_H, BUS_EXT_X, EXT_Y, flow.gridPow, col)}
+			${
+				isActive && busPow > 0
+					? svg`
+				<text x=${GRID_CX} y=${GRID_Y + 57} text-anchor="middle" font-size="8"
+					fill="var(--secondary-text-color)">import</text>
+			`
+					: svg``
+			}
+			${
+				isActive && busPow < 0
+					? svg`
+				<text x=${GRID_CX} y=${GRID_Y + 57} text-anchor="middle" font-size="8"
+					fill="var(--secondary-text-color)">export</text>
+			`
+					: svg``
+			}
+			${flowLine(BUS_GRID_X, BUS_Y + BUS_H, BUS_GRID_X, GRID_Y, -busPow, col)}
 		</g>
 	`;
 }
@@ -445,7 +472,7 @@ function genBlock(
 			`
 					: svg``
 			}
-			${flowLine(BUS_GEN_X, BUS_Y + BUS_H, BUS_GEN_X, GEN_Y, flow.genPow, col)}
+			${flowLine(BUS_GEN_X, BUS_Y + BUS_H, BUS_GEN_X, GEN_Y, -flow.genPow, col)}
 		</g>
 	`;
 }
@@ -510,7 +537,7 @@ export const offgridCard = (
 	return html`
 		<ha-card>
 			${config.title
-				? html` <div
+				? html`<div
 						style="text-align:center;padding:12px 0 0;
 					color:${config.title_colour ?? 'inherit'};
 					font-size:${config.title_size ?? '16px'};font-weight:500"
@@ -549,11 +576,10 @@ export const offgridCard = (
 					)}
 					${solarBlock(totalPV, config, ccCol)}
 					${loadTextZone(hass, e, config, flow)}
-					${invBlock(hass, e, config, flow)}
+					${invBlock(hass, e, config, flow)} ${gridBlock(hass, e, config, flow)}
 					${config.show_battery !== false
 						? batBlock(hass, e, config, flow)
 						: svg``}
-					${extBlock(hass, e, config, flow)}
 					${genBlock(
 						hass,
 						e,
